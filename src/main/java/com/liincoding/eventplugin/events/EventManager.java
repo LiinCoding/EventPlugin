@@ -1,6 +1,6 @@
-package com.yourname.eventplugin.events;
+package com.liincoding.eventplugin.events;
 
-import com.yourname.eventplugin.EventPlugin;
+import com.liincoding.eventplugin.EventPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.boss.BarColor;

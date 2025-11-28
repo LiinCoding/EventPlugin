@@ -1,4 +1,4 @@
-package com.yourname.eventplugin.events;
+package com.liincoding.eventplugin.events;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

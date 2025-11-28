@@ -1,6 +1,6 @@
-package com.yourname.eventplugin.commands;
+package com.liincoding.eventplugin.commands;
 
-import com.yourname.eventplugin.events.EventManager;
+import com.liincoding.eventplugin.events.EventManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

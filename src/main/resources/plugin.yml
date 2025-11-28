@@ -1,6 +1,6 @@
 name: EventPlugin
 version: 1.0
-main: com.yourname.eventplugin.EventPlugin
+main: com.liincoding.eventplugin.EventPlugin
 api-version: 1.21
 commands:
   event:
