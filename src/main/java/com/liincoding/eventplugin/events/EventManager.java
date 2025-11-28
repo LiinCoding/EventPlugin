@@ -42,6 +42,14 @@ public class EventManager {
   public void startEvent(String eventName) {
     if (eventRunning) return;
 
+    // Check if the event is configured
+    World eventWorld = getEventWorld(eventName);
+    if (eventWorld == null) {
+        plugin.getLogger().warning("Cannot start event '" + eventName + "': world not found in config or not loaded!");
+        Bukkit.broadcastMessage("§cCannot start event '" + eventName + "': world not found!");
+        return; // abort event start
+    }
+
     eventRunning = true;
     currentEventName = eventName;
 
