@@ -9,10 +9,6 @@ public class EventEndCommand implements CommandExecutor {
 
     private final EventManager eventManager;
 
-    public EventEndCommand(EventManager eventManager) {
-        this.eventManager = eventManager;
-    }
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
