@@ -1,48 +1,34 @@
-package com.liincoding.eventplugin.events;
+package com.liincoding.eventplugin.commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
-import org.bukkit.World;
-import org.bukkit.GameMode;
+import com.liincoding.eventplugin.events.EventManager;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 
-public class Event {
+public class EventEndCommand implements CommandExecutor {
 
-    private final String name;
-    private final ConfigurationSection config;
-    private boolean running = false;
+    private final EventManager eventManager;
 
-    public Event(String name, ConfigurationSection config) {
-        this.name = name;
-        this.config = config;
+    public EventEndCommand(EventManager eventManager) {
+        this.eventManager = eventManager;
     }
 
-    public String getName() {
-        return name;
-    }
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    public void teleportToEvent(Player player) {
-        String worldName = config.getString("world");
-        World world = Bukkit.getWorld(worldName);
-        if (world == null) {
-            player.sendMessage("Event world not found!");
-            return;
+        if (!sender.hasPermission("event.admin")) {
+            sender.sendMessage("§cYou do not have permission to end events.");
+            return true;
         }
 
-        double x = config.getDouble("spawn.x");
-        double y = config.getDouble("spawn.y");
-        double z = config.getDouble("spawn.z");
+        if (!eventManager.isEventRunning()) {
+            sender.sendMessage("§cNo event is currently running.");
+            return true;
+        }
 
-        Location spawn = new Location(world, x, y, z);
-        player.teleport(spawn);
+        eventManager.endEvent();
+        sender.sendMessage("§aEvent has been ended.");
+
+        return true;
     }
 }

@@ -15,10 +15,12 @@ public class EventPlugin extends JavaPlugin {
 
         saveDefaultConfig();
 
-        eventManager = new EventManager(this);
+    e   ventManager = new EventManager(this);
 
         getCommand("event").setExecutor(new EventCommand(eventManager));
+    g   etCommand("eventend").setExecutor(new EventEndCommand(eventManager)); // new command
     }
+
 
     public static EventPlugin getInstance() {
         return instance;

@@ -16,3 +16,7 @@ permissions:
   event.leave:
     description: Allows leaving events
     default: true
+  event.end:
+    description: End a running event
+    usage: /<command>
+    permission: event.admin
