@@ -1,4 +1,4 @@
-package com.yourname.eventplugin;
+package com.liincoding.eventplugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
