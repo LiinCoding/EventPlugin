@@ -79,12 +79,9 @@ public class EventManager {
         bossBar.setTitle("Event " + eventName + " starting in " + seconds + "s");
         bossBar.setProgress(seconds / 30.0);
 
-        // Add all players to boss bar so they see the countdown
-        for (UUID uuid: eventPlayers.keySet()) {
-          Player player = Bukkit.getPlayer(uuid);
-          if (player != null) bossBar.addPlayer(player);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            bossBar.addPlayer(player);
         }
-
         seconds--;
       }
     }.runTaskTimer(plugin, 0L, 20L); // 20 ticks = 1 second
