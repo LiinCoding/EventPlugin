@@ -1,6 +1,7 @@
 package com.liincoding.eventplugin;
 
 import com.liincoding.eventplugin.events.EventManager;
+import com.liincoding.eventplugin.commands.EventCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class EventPlugin extends JavaPlugin {
@@ -16,7 +17,7 @@ public class EventPlugin extends JavaPlugin {
 
         eventManager = new EventManager(this);
 
-        getCommand("event").setExecutor(new commands.EventCommand(eventManager));
+        getCommand("event").setExecutor(new EventCommand(eventManager));
     }
 
     public static EventPlugin getInstance() {
