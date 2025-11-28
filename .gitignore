@@ -1,0 +1,14 @@
+# Maven / Gradle
+target/
+bin/
+*.class
+*.jar
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

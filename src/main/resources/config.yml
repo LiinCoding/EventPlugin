@@ -1,0 +1,7 @@
+events:
+  hideNseek:
+    world: hideNseek1
+    spawn:
+      x: 100
+      y: 64
+      z: 100
