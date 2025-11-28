@@ -82,6 +82,19 @@ public class EventManager {
         // TODO: teleport to event location
     }
 
+    public void joinEvent(Player player) {
+        addPlayer(player); // already stores inventory/location and sets gamemode
+    }
+
+    public void leaveEvent(Player player) {
+        PlayerData data = eventPlayers.remove(player.getUniqueId());
+        if (data != null) {
+            player.teleport(data.getLocation());
+            player.getInventory().setContents(data.getInventory());
+            player.setGameMode(GameMode.SURVIVAL);
+        }
+    }
+
     // Simple container for inventory and location
     private static class PlayerData {
         private final org.bukkit.Location location;

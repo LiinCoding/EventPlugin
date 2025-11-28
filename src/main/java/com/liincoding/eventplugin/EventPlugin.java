@@ -9,7 +9,7 @@ public class EventPlugin extends JavaPlugin {
     private static EventPlugin instance;
     private EventManager eventManager;
 
-    @Override 
+    @Override
     public void onEnable() {
         instance = this;
 
@@ -18,8 +18,7 @@ public class EventPlugin extends JavaPlugin {
         eventManager = new EventManager(this);
 
         getCommand("event").setExecutor(new EventCommand(eventManager));
-        getCommand("eventend").setExecutor(new EventEndCommand(eventManager)); // semicolon added
-}
+    }
 
 
     public static EventPlugin getInstance() {

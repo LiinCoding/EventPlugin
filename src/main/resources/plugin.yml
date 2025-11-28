@@ -2,10 +2,12 @@ name: EventPlugin
 version: 1.0
 main: com.liincoding.eventplugin.EventPlugin
 api-version: 1.21
+
 commands:
   event:
-    description: Event management commands
-    usage: /<command> <start|join|leave> [eventName]
+    description: Start/join/leave/end events
+    usage: /<command>
+
 permissions:
   event.start:
     description: Allows starting events
@@ -16,7 +18,6 @@ permissions:
   event.leave:
     description: Allows leaving events
     default: true
-  event.end:
-    description: End a running event
-    usage: /<command>
-    permission: event.admin
+  event.admin:
+    description: Allows ending events
+    default: op
