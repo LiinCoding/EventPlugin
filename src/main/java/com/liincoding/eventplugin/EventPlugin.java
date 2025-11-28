@@ -1,5 +1,6 @@
 package com.liincoding.eventplugin;
 
+import com.liincoding.eventplugin.events.EventManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class EventPlugin extends JavaPlugin {
@@ -24,5 +25,10 @@ public class EventPlugin extends JavaPlugin {
 
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    @Override
+    public void onDisable() {
+        // cleanup
     }
 }
