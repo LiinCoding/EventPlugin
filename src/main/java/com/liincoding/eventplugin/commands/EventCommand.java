@@ -30,8 +30,17 @@ public class EventCommand implements CommandExecutor {
                     sender.sendMessage("§cYou do not have permission.");
                     return true;
                 }
-                // TODO: call your manager.startEvent(eventName)
-                sender.sendMessage("Event started (skeleton)");
+                if (args.length < 2) {
+                    sender.sendMessage("Usage: /event start <eventName>");
+                    return true;
+                }
+                String eventName = args[1];
+                if (manager.isEventRunning()) {
+                    sender.sendMessage("§cAn event is already running!");
+                    return true;
+                }
+                manager.startEvent(eventName);
+                sender.sendMessage("§aEvent " + eventName + " is starting in 30 seconds!");
                 break;
 
             case "join":

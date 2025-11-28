@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.boss.BossBar;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.World;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,103 +16,168 @@ import java.util.UUID;
 
 public class EventManager {
 
-    private final EventPlugin plugin;
+  private final EventPlugin plugin;
 
-    private boolean eventRunning = false;
-    private String currentEventName;
-    private BossBar bossBar;
+  private boolean eventRunning = false;
+  private String currentEventName;
+  private BossBar bossBar;
 
-    // Stores original player locations and inventories
-    private final Map<UUID, PlayerData> eventPlayers = new HashMap<>();
+  // Stores original player locations and inventories
+  private final Map < UUID,
+  PlayerData > eventPlayers = new HashMap < >();
 
-    public EventManager(EventPlugin plugin) {
-        this.plugin = plugin;
-    }
+  public EventManager(EventPlugin plugin) {
+    this.plugin = plugin;
+  }
 
-    public boolean isEventRunning() {
-        return eventRunning;
-    }
+  public boolean isEventRunning() {
+    return eventRunning;
+  }
 
-    public String getCurrentEventName() {
-        return currentEventName;
-    }
+  public String getCurrentEventName() {
+    return currentEventName;
+  }
 
-    // Called when event starts
-    public void startEvent(String eventName) {
-        if (eventRunning) return;
+  // Called when event starts
+  public void startEvent(String eventName) {
+    if (eventRunning) return;
 
-        eventRunning = true;
-        currentEventName = eventName;
+    eventRunning = true;
+    currentEventName = eventName;
 
-        // Example boss bar
-        bossBar = Bukkit.createBossBar("Event " + eventName + " starting!", BarColor.GREEN, BarStyle.SOLID);
-        // TODO: Add players to boss bar and schedule countdown
-    }
+    bossBar = Bukkit.createBossBar("Event " + eventName + " starting in 30s", BarColor.GREEN, BarStyle.SOLID);
 
-    // Called when event ends (or is cancelled)
-    public void endEvent() {
-        if (!eventRunning) return;
+    new org.bukkit.scheduler.BukkitRunnable() {
+      int seconds = 30;
 
-        // Restore all players
-        for (UUID uuid : eventPlayers.keySet()) {
+      @Override
+      public void run() {
+        if (seconds <= 0) {
+          bossBar.removeAll();
+          Bukkit.broadcastMessage("§aEvent " + eventName + " has started!");
+
+          // Teleport all players who joined
+          for (UUID uuid: eventPlayers.keySet()) {
             Player player = Bukkit.getPlayer(uuid);
-            if (player != null && player.isOnline()) {
-                PlayerData data = eventPlayers.get(uuid);
-                player.teleport(data.getLocation());
-                player.getInventory().setContents(data.getInventory());
-                player.setGameMode(GameMode.SURVIVAL);
+            if (player != null) {
+              // Example: teleport to event world spawn
+              org.bukkit.World world = getEventWorld(eventName);
+              if (world != null) {
+                org.bukkit.Location spawn = world.getSpawnLocation();
+                player.teleport(spawn);
+                player.setGameMode(GameMode.ADVENTURE);
+              } else {
+                player.sendMessage("§cEvent world not found!");
+              }
             }
+          }
+
+          cancel();
+          return;
         }
 
-        // Clear boss bar
-        if (bossBar != null) {
-            bossBar.removeAll();
+        bossBar.setTitle("Event " + eventName + " starting in " + seconds + "s");
+        bossBar.setProgress(seconds / 30.0);
+
+        // Add all players to boss bar so they see the countdown
+        for (UUID uuid: eventPlayers.keySet()) {
+          Player player = Bukkit.getPlayer(uuid);
+          if (player != null) bossBar.addPlayer(player);
         }
 
-        // Reset state
-        eventPlayers.clear();
-        eventRunning = false;
-        currentEventName = null;
+        seconds--;
+      }
+    }.runTaskTimer(plugin, 0L, 20L); // 20 ticks = 1 second
+  }
 
-        plugin.getLogger().info("Event has ended.");
+  // Called when event ends (or is cancelled)
+  public void endEvent() {
+    if (!eventRunning) return;
+
+    // Restore all players
+    for (UUID uuid: eventPlayers.keySet()) {
+      Player player = Bukkit.getPlayer(uuid);
+      if (player != null && player.isOnline()) {
+        PlayerData data = eventPlayers.get(uuid);
+        player.teleport(data.getLocation());
+        player.getInventory().setContents(data.getInventory());
+        player.setGameMode(GameMode.SURVIVAL);
+      }
     }
 
-    // Store player data when they join
-    public void addPlayer(Player player) {
-        eventPlayers.put(player.getUniqueId(), new PlayerData(player));
-        player.setGameMode(GameMode.ADVENTURE);
-        // TODO: teleport to event location
+    // Clear boss bar
+    if (bossBar != null) {
+      bossBar.removeAll();
     }
 
-    public void joinEvent(Player player) {
-        addPlayer(player); // already stores inventory/location and sets gamemode
+    // Reset state
+    eventPlayers.clear();
+    eventRunning = false;
+    currentEventName = null;
+
+    plugin.getLogger().info("Event has ended.");
+  }
+
+  public void addPlayer(Player player) {
+    eventPlayers.put(player.getUniqueId(), new PlayerData(player));
+    player.setGameMode(GameMode.ADVENTURE);
+
+    // Teleport to event world spawn if event already started
+    if (eventRunning) {
+      World world = getEventWorld(currentEventName);
+      if (world != null) {
+        double x = plugin.getConfig().getDouble("events." + currentEventName + ".spawn.x");
+        double y = plugin.getConfig().getDouble("events." + currentEventName + ".spawn.y");
+        double z = plugin.getConfig().getDouble("events." + currentEventName + ".spawn.z");
+        player.teleport(new org.bukkit.Location(world, x, y, z));
+      } else {
+        player.sendMessage("§cEvent world not found!");
+      }
+
+      // Add to boss bar so player sees countdown
+      if (bossBar != null) bossBar.addPlayer(player);
+    }
+  }
+
+  public void joinEvent(Player player) {
+    addPlayer(player); // already stores inventory/location and sets gamemode
+  }
+
+  public void leaveEvent(Player player) {
+    PlayerData data = eventPlayers.remove(player.getUniqueId());
+    if (data != null) {
+      player.teleport(data.getLocation());
+      player.getInventory().setContents(data.getInventory());
+      player.setGameMode(GameMode.SURVIVAL);
+    }
+  }
+
+  private World getEventWorld(String eventName) {
+    FileConfiguration config = plugin.getConfig();
+    if (!config.isConfigurationSection("events." + eventName)) return null;
+
+    String worldName = config.getString("events." + eventName + ".world");
+    if (worldName == null) return null;
+
+    return Bukkit.getWorld(worldName);
+  }
+
+  // Simple container for inventory and location
+  private static class PlayerData {
+    private final org.bukkit.Location location;
+    private final org.bukkit.inventory.ItemStack[] inventory;
+
+    public PlayerData(Player player) {
+      this.location = player.getLocation();
+      this.inventory = player.getInventory().getContents();
     }
 
-    public void leaveEvent(Player player) {
-        PlayerData data = eventPlayers.remove(player.getUniqueId());
-        if (data != null) {
-            player.teleport(data.getLocation());
-            player.getInventory().setContents(data.getInventory());
-            player.setGameMode(GameMode.SURVIVAL);
-        }
+    public org.bukkit.Location getLocation() {
+      return location;
     }
 
-    // Simple container for inventory and location
-    private static class PlayerData {
-        private final org.bukkit.Location location;
-        private final org.bukkit.inventory.ItemStack[] inventory;
-
-        public PlayerData(Player player) {
-            this.location = player.getLocation();
-            this.inventory = player.getInventory().getContents();
-        }
-
-        public org.bukkit.Location getLocation() {
-            return location;
-        }
-
-        public org.bukkit.inventory.ItemStack[] getInventory() {
-            return inventory;
-        }
+    public org.bukkit.inventory.ItemStack[] getInventory() {
+      return inventory;
     }
+  }
 }
