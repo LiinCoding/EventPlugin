@@ -1,6 +1,7 @@
 package com.liincoding.eventplugin;
 
 import java.util.UUID;
+import com.liincoding.eventplugin.listeners.EventPlayerQuitListener;
 import com.liincoding.eventplugin.listeners.EventCommandBlockListener;
 import com.liincoding.eventplugin.events.EventManager;
 import com.liincoding.eventplugin.commands.EventCommand;
@@ -22,8 +23,11 @@ public class EventPlugin extends JavaPlugin {
         getCommand("event").setExecutor(new EventCommand(eventManager));
 
         getServer().getPluginManager().registerEvents(
-            new EventCommandBlockListener(eventManager),
-            this
+            new EventCommandBlockListener(eventManager), this
+        );
+
+        getServer().getPluginManager().registerEvents(
+            new listeners.EventPlayerQuitListener(eventManager), this
         );
 
     }
