@@ -2,8 +2,13 @@ events:
   hideNseek:
     maps:
       - hideNseek1
+      - hideNseek2
     spawn:
       hideNseek1:
         x: -162
         y: -58
         z: -264
+      hideNseek2:
+        x: 212
+        y: -58
+        z: -220
