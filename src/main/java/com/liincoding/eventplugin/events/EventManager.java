@@ -76,9 +76,8 @@ public class EventManager {
       return;
     }
 
-    // Use mapName as the world to load/backup
-    String worldName = mapName;
     currentMapName = mapName;
+    String worldName = mapName;
 
     // Try to create a backup
     if (!backupWorld(worldName)) {
