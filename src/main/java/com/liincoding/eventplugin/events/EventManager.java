@@ -1,6 +1,8 @@
 package com.liincoding.eventplugin.events;
 
+import com.liincoding.eventplugin.PlayerData;
 import com.liincoding.eventplugin.EventPlugin;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -37,8 +39,7 @@ public class EventManager {
   private EventType currentEventType = null;
 
   // Stores original player locations and inventories
-  private final Map < UUID,
-  PlayerData > eventPlayers = new HashMap < >();
+  private final Map < UUID, PlayerData > eventPlayers = new HashMap < >();
 
   public EventManager(EventPlugin plugin) {
     this.plugin = plugin;
@@ -297,24 +298,5 @@ public class EventManager {
 
   private World getEventWorld(String mapName) {
     return Bukkit.getWorld(mapName);
-  }
-
-  // Simple container for inventory and location
-  public static class PlayerData {
-    private final org.bukkit.Location location;
-    private final org.bukkit.inventory.ItemStack[] inventory;
-
-    public PlayerData(Player player) {
-      this.location = player.getLocation();
-      this.inventory = player.getInventory().getContents();
-    }
-
-    public org.bukkit.Location getLocation() {
-      return location;
-    }
-
-    public org.bukkit.inventory.ItemStack[] getInventory() {
-      return inventory;
-    }
   }
 }
