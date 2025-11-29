@@ -1,6 +1,8 @@
 package com.liincoding.eventplugin.events;
 
+import com.liincoding.eventplugin.events.PlayerData;
 import com.liincoding.eventplugin.EventPlugin;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
@@ -32,8 +34,7 @@ Listener {
 
   @Override
   public void onStart(EventManager manager) {
-    Map < UUID,
-    EventManager.PlayerData > playersMap = manager.getEventPlayers();
+    Map<UUID, PlayerData> playersMap = manager.getEventPlayers();
     if (playersMap.isEmpty()) return;
 
     List < Player > players = new ArrayList < >();
@@ -96,16 +97,25 @@ Listener {
   }
 
   public void leaveEvent(EventManager manager, Player player) {
+    // If the player is a hider, reset their special attributes
     if (hiders.contains(player)) {
-      player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
-      player.setScale(1.0);
+      if (player.isOnline()) {
+        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+
+        // Only if your server supports it (Paper 1.19+)
+        try {
+          player.setScale(1.0);
+        } catch(NoSuchMethodError ignored) {
+          // If not supported, just ignore scaling
+        }
+      }
       hiders.remove(player);
     }
 
-    EventManager.PlayerData data = manager.getEventPlayers().remove(player.getUniqueId());
+    // Restore all saved player data
+    PlayerData data = manager.getEventPlayers().remove(player.getUniqueId());
     if (data != null) {
       data.restore(player);
     }
   }
-
 }
