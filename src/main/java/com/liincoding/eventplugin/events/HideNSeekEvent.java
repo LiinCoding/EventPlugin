@@ -4,11 +4,16 @@ import com.liincoding.eventplugin.EventPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 
+
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.Random;
+
 
 public class HideNSeekEvent implements EventManager.EventType {
 

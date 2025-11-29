@@ -297,7 +297,7 @@ public class EventManager {
   }
 
   // Simple container for inventory and location
-  private static class PlayerData {
+  public static class PlayerData {
     private final org.bukkit.Location location;
     private final org.bukkit.inventory.ItemStack[] inventory;
 
