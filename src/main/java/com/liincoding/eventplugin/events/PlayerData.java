@@ -12,9 +12,12 @@ public class PlayerData {
     private final Location location;
     private final double health;
     private final int food;
+    private final float saturation;
     private final int xp;
     private final int level;
     private final PotionEffect[] effects;
+    private final GameMode gameMode;
+    private final int fireTicks;
 
     public PlayerData(Player player) {
         this.inventory = player.getInventory().getContents();
@@ -24,7 +27,10 @@ public class PlayerData {
         this.food = player.getFoodLevel();
         this.xp = player.getTotalExperience();
         this.level = player.getLevel();
+        this.saturation = player.getSaturation();
         this.effects = player.getActivePotionEffects().toArray(new PotionEffect[0]);
+        this.gameMode = player.getGameMode();
+        this.fireTicks = player.getFireTicks();
     }
 
     public void restore(Player player) {
@@ -33,9 +39,14 @@ public class PlayerData {
         player.teleport(location);
         player.setHealth(health);
         player.setFoodLevel(food);
+        player.setSaturation(saturation);
         player.setTotalExperience(xp);
         player.setLevel(level);
-        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+        player.setGameMode(gameMode);
+        player.setFireTicks(fireTicks);
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
         for (PotionEffect effect : effects) {
             player.addPotionEffect(effect);
         }

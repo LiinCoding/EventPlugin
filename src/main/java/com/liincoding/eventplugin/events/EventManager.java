@@ -22,6 +22,7 @@ public class EventManager {
   private boolean eventStarted = false;
   private String currentEventName;
   private BossBar bossBar;
+  private static final int MIN_PLAYERS = 2;
 
   // Stores original player locations and inventories
   private final Map < UUID,
@@ -50,9 +51,9 @@ public class EventManager {
     // Check if the event is configured
     World eventWorld = getEventWorld(eventName);
     if (eventWorld == null) {
-        plugin.getLogger().warning("Cannot start event '" + eventName + "': world not found in config or not loaded!");
-        Bukkit.broadcastMessage("§cCannot start event '" + eventName + "': world not found!");
-        return; // abort event start
+      plugin.getLogger().warning("Cannot start event '" + eventName + "': world not found in config or not loaded!");
+      Bukkit.broadcastMessage("§cCannot start event '" + eventName + "': world not found!");
+      return; // abort event start
     }
 
     eventRunning = true;
@@ -66,11 +67,18 @@ public class EventManager {
       @Override
       public void run() {
         if (seconds <= 0) {
+          if (eventPlayers.size() < MIN_PLAYERS) {
+            Bukkit.broadcastMessage("§cEvent " + eventName + " was cancelled due to insufficient players.");
+            endEvent();
+            cancel();
+            return;
+          }
+
           bossBar.removeAll();
           Bukkit.broadcastMessage("§aEvent " + eventName + " has started!");
 
           eventStarted = true;
-          
+
           // Teleport all players who joined
           for (UUID uuid: eventPlayers.keySet()) {
             Player player = Bukkit.getPlayer(uuid);
@@ -94,8 +102,8 @@ public class EventManager {
         bossBar.setTitle("Event " + eventName + " starting in " + seconds + "s");
         bossBar.setProgress(seconds / 30.0);
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            bossBar.addPlayer(player);
+        for (Player player: Bukkit.getOnlinePlayers()) {
+          bossBar.addPlayer(player);
         }
         seconds--;
       }
