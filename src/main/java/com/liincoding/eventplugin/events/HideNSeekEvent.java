@@ -12,47 +12,47 @@ import java.util.UUID;
 
 public class HideNSeekEvent implements EventManager.EventType {
 
-    private final EventPlugin plugin;
+  private final EventPlugin plugin;
 
-    public HideNSeekEvent(EventPlugin plugin) {
-        this.plugin = plugin;
+  public HideNSeekEvent(EventPlugin plugin) {
+    this.plugin = plugin;
+  }
+
+  @Override
+  public void onStart(EventManager manager) {
+    Map < UUID,
+    EventManager.PlayerData > playersMap = manager.getEventPlayers();
+    if (playersMap.isEmpty()) return;
+
+    List < Player > players = new ArrayList < >();
+    for (UUID uuid: playersMap.keySet()) {
+      Player player = Bukkit.getPlayer(uuid);
+      if (player != null) players.add(player);
     }
 
-    @Override
-    public void onStart(EventManager manager) {
-        // Get all players who joined
-        List<UUID> playerUUIDs = new ArrayList<>(manager.getEventPlayers().keySet());
-        if (playerUUIDs.isEmpty()) return;
+    if (players.isEmpty()) return;
 
-        // Shuffle for randomness
-        Collections.shuffle(playerUUIDs);
+    // Pick 1 seeker randomly
+    Player seeker = players.get(new Random().nextInt(players.size()));
+    seeker.sendMessage("§cYou are the Seeker!");
+    seeker.setGameMode(GameMode.SURVIVAL);
 
-        // Select 1 seeker
-        UUID seekerUUID = playerUUIDs.get(0);
-        Player seeker = Bukkit.getPlayer(seekerUUID);
-        if (seeker != null) {
-            seeker.sendMessage(ChatColor.RED + "You are the Seeker!");
-            // Optionally: give seeker special items/effects
-        }
-
-        // Assign remaining as hiders
-        for (int i = 1; i < playerUUIDs.size(); i++) {
-            UUID hiderUUID = playerUUIDs.get(i);
-            Player hider = Bukkit.getPlayer(hiderUUID);
-            if (hider != null) {
-                hider.sendMessage(ChatColor.GREEN + "You are a Hider!");
-                // Optionally: hide hiders from seeker initially or give special effects
-            }
-        }
+    // Rest are hiders
+    for (Player p: players) {
+      if (!p.equals(seeker)) {
+        p.sendMessage("§aYou are a Hider!");
+        p.setGameMode(GameMode.ADVENTURE);
+      }
     }
+  }
 
-    @Override
-    public void onJoin(EventManager manager, Player player) {
-        // Optional: handle player-specific logic when they join mid-countdown
-    }
+  @Override
+  public void onJoin(EventManager manager, Player player) {
+    // Optional: handle player-specific logic when they join mid-countdown
+  }
 
-    @Override
-    public void onEnd(EventManager manager) {
-        // Optional: cleanup roles/effects when event ends
-    }
+  @Override
+  public void onEnd(EventManager manager) {
+    // Optional: cleanup roles/effects when event ends
+  }
 }

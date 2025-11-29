@@ -62,6 +62,10 @@ public class EventManager {
     return currentEventName;
   }
 
+  public Map<UUID, PlayerData> getEventPlayers() {
+    return eventPlayers;
+  }
+
   // Called when event starts
   public void startEvent(String eventName, String mapName) {
     if (eventRunning) return;
