@@ -33,6 +33,7 @@ public class EventManager {
   private static final int MIN_PLAYERS = 2;
   private File worldBackup = null;
   private String currentMapName;
+  private final Random rand = new Random();
 
   // Stores original player locations and inventories
   private final Map < UUID,
@@ -66,10 +67,11 @@ public class EventManager {
       return;
     }
 
-    // Pick a map
+    // Pick a map randomly if none specified
     if (mapName == null || mapName.isEmpty()) {
-      Random rand = new Random();
-      mapName = maps.get(rand.nextInt(maps.size())); // random map
+      int index = rand.nextInt(maps.size());
+      mapName = maps.get(index);
+      plugin.getLogger().info("Randomly selected map: " + mapName); // debug log
     } else if (!maps.contains(mapName)) {
       plugin.getLogger().warning("Event '" + eventName + "' map '" + mapName + "' does not exist!");
       Bukkit.broadcastMessage("§cCannot start event: map '" + mapName + "' not found!");
