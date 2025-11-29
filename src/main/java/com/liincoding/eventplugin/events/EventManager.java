@@ -34,6 +34,7 @@ public class EventManager {
   private File worldBackup = null;
   private String currentMapName;
   private final Random rand = new Random();
+  private EventType currentEventType = null;
 
   // Stores original player locations and inventories
   private final Map < UUID,
@@ -41,6 +42,12 @@ public class EventManager {
 
   public EventManager(EventPlugin plugin) {
     this.plugin = plugin;
+  }
+
+  public interface EventType {
+    void onStart(EventManager manager);
+    void onJoin(EventManager manager, Player player);
+    void onEnd(EventManager manager);
   }
 
   public boolean isEventRunning() {
@@ -95,8 +102,22 @@ public class EventManager {
       return; // abort event
     }
 
+    if (eventName.equalsIgnoreCase("hideNseek")) {
+      int baseBorder = 30; // starting border
+      int extraPer5Players = 10;
+      int borderSize = baseBorder + ((eventPlayers.size() / 5) * extraPer5Players);
+      eventWorld.getWorldBorder().setCenter(getSpawnLocation(eventName, mapName)); // center at spawn
+      eventWorld.getWorldBorder().setSize(borderSize * 2); // Bukkit size = diameter
+    }
+
     eventRunning = true;
     currentEventName = eventName;
+
+    if (eventName.equalsIgnoreCase("hideNseek")) {
+      currentEventType = new HideNSeekEvent(plugin); // pass plugin if needed
+    } else {
+      currentEventType = null; // generic event, no special logic
+    }
 
     bossBar = Bukkit.createBossBar("Event " + eventName + " starting in 30s", BarColor.GREEN, BarStyle.SOLID);
 
@@ -118,18 +139,9 @@ public class EventManager {
 
           eventStarted = true;
 
-          // Teleport all players who joined
-          for (UUID uuid: eventPlayers.keySet()) {
-            Player player = Bukkit.getPlayer(uuid);
-            if (player != null) {
-              Location spawn = getSpawnLocation(currentEventName, currentMapName);
-              if (spawn != null) {
-                player.teleport(spawn);
-                player.setGameMode(GameMode.ADVENTURE);
-              } else {
-                player.sendMessage("§cEvent spawn location not found!");
-              }
-            }
+          // Trigger event-specific logic
+          if (currentEventType != null) {
+            currentEventType.onStart(EventManager.this);
           }
 
           cancel();
@@ -179,8 +191,8 @@ public class EventManager {
 
     // Clear boss bar (countdown or running event)
     if (bossBar != null) {
-        bossBar.removeAll();
-        bossBar = null; // set to null so future events create a new one
+      bossBar.removeAll();
+      bossBar = null; // set to null so future events create a new one
     }
 
     // Reset state
