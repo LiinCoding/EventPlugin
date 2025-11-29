@@ -2,6 +2,6 @@ events:
   hideNseek:
     world: hideNseek1
     spawn:
-      x: 0
+      x: -162
       y: -58
-      z: 0
+      z: -264
