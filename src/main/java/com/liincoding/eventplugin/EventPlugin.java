@@ -18,6 +18,12 @@ public class EventPlugin extends JavaPlugin {
         eventManager = new EventManager(this);
 
         getCommand("event").setExecutor(new EventCommand(eventManager));
+
+        getServer().getPluginManager().registerEvents(
+            new EventCommandBlockListener(eventManager),
+            this
+        );
+
     }
 
 
