@@ -19,6 +19,7 @@ public class EventManager {
   private final EventPlugin plugin;
 
   private boolean eventRunning = false;
+  private boolean eventStarted = false;
   private String currentEventName;
   private BossBar bossBar;
 
@@ -32,6 +33,10 @@ public class EventManager {
 
   public boolean isEventRunning() {
     return eventRunning;
+  }
+
+  public boolean hasEventStarted() {
+    return eventStarted;
   }
 
   public String getCurrentEventName() {
@@ -64,6 +69,8 @@ public class EventManager {
           bossBar.removeAll();
           Bukkit.broadcastMessage("§aEvent " + eventName + " has started!");
 
+          eventStarted = true;
+          
           // Teleport all players who joined
           for (UUID uuid: eventPlayers.keySet()) {
             Player player = Bukkit.getPlayer(uuid);
@@ -97,6 +104,8 @@ public class EventManager {
 
   // Called when event ends (or is cancelled)
   public void endEvent() {
+    eventStarted = false;
+
     if (!eventRunning) return;
 
     // Restore all players

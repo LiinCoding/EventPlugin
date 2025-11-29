@@ -48,12 +48,33 @@ public class EventCommand implements CommandExecutor {
                     sender.sendMessage("Only players can join events.");
                     return true;
                 }
+
                 if (!sender.hasPermission("event.join")) {
-                    sender.sendMessage("§cYou do not have permission.");
+                sender.sendMessage("§cYou do not have permission.");
+                return true;
+                }
+
+                // ❌ No event running at all
+                if (!manager.isEventRunning()) {
+                    sender.sendMessage("§cThere is no event running right now.");
                     return true;
                 }
-                manager.joinEvent(player); // make sure joinEvent() exists in EventManager
-                sender.sendMessage("You joined the event.");
+
+                // ❌ Event has started (countdown is over)
+                if (manager.hasEventStarted()) {
+                    sender.sendMessage("§cYou can no longer join — the event has already begun!");
+                    return true;
+                }
+
+                // ❌ Already joined
+                if (manager.isInEvent(player.getUniqueId())) {
+                    sender.sendMessage("§eYou are already in the event.");
+                    return true;
+                }
+
+                // ✅ Finally allow the join
+                manager.joinEvent(player);
+                sender.sendMessage("§aYou joined the event.");
                 break;
 
             case "leave":
