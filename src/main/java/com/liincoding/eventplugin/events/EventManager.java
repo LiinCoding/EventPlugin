@@ -123,6 +123,10 @@ public class EventManager {
     plugin.getLogger().info("Event has ended.");
   }
 
+  public boolean isInEvent(UUID uuid) {
+    return eventPlayers.containsKey(uuid);
+  }
+
   public void addPlayer(Player player) {
     eventPlayers.put(player.getUniqueId(), new PlayerData(player));
     player.setGameMode(GameMode.ADVENTURE);

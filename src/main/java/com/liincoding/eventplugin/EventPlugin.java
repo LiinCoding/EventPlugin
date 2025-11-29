@@ -37,10 +37,6 @@ public class EventPlugin extends JavaPlugin {
         return eventManager;
     }
 
-    public boolean isInEvent(UUID uuid) {
-        return eventPlayers.containsKey(uuid);
-    }
-
     @Override
     public void onDisable() {
         // cleanup
