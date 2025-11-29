@@ -34,13 +34,12 @@
             <version>${spigot.api.version}</version>
             <scope>provided</scope>
         </dependency>
-    </dependencies>
-
-    <dependency>
-        <groupId>commons-io</groupId>
+        <dependency>
+            <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        <version>2.11.0</version>
-    </dependency>
+            <version>2.11.0</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <resources>
