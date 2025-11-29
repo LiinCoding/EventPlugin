@@ -77,7 +77,7 @@ public class HideNSeekEvent implements EventManager.EventType, Listener {
         // Reset hiders' health and scale
         for (Player hider : hiders) {
             if (hider.isOnline()) {
-                hider.setHealth(hider.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+                hider.setHealth(hider.getAttribute(Attribute.MAX_HEALTH).getDefaultValue());
 
                 // Restore scale using command (no setScale method)
                 Bukkit.dispatchCommand(
@@ -104,7 +104,7 @@ public class HideNSeekEvent implements EventManager.EventType, Listener {
 
         if (hiders.contains(player)) {
             if (player.isOnline()) {
-                player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+                player.setHealth(player.getAttribute(Attribute.MAX_HEALTH).getDefaultValue());
 
                 // restore scale
                 Bukkit.dispatchCommand(
