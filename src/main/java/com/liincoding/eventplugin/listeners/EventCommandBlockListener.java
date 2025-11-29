@@ -14,7 +14,6 @@ public class EventCommandBlockListener implements Listener {
 
     private final EventManager manager;
 
-    // Commands that would let players escape
     private final Set<String> blockedCommands = new HashSet<>(Arrays.asList(
             "/spawn",
             "/tpa",
@@ -33,17 +32,16 @@ public class EventCommandBlockListener implements Listener {
     public void onCommand(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
 
-        // Only block if player is actually in the event
-        if (!manager.isInEvent(player.getUniqueId())) return;
         if (!manager.isEventRunning()) return;
+        if (!manager.isInEvent(player.getUniqueId())) return;
 
         String msg = event.getMessage().toLowerCase();
 
         for (String cmd : blockedCommands) {
             if (msg.startsWith(cmd)) {
                 event.setCancelled(true);
-                player.sendMessage("§cYou cannot use that command while participating in an event!");
-                break;
+                player.sendMessage("§cYou cannot use that command while in an event!");
+                return;
             }
         }
     }

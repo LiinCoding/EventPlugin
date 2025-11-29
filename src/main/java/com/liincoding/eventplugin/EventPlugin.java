@@ -1,5 +1,6 @@
 package com.liincoding.eventplugin;
 
+import com.liincoding.eventplugin.listeners.EventCommandBlockListener;
 import com.liincoding.eventplugin.events.EventManager;
 import com.liincoding.eventplugin.commands.EventCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +34,10 @@ public class EventPlugin extends JavaPlugin {
 
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    public boolean isInEvent(UUID uuid) {
+        return eventPlayers.containsKey(uuid);
     }
 
     @Override
