@@ -177,9 +177,10 @@ public class EventManager {
     // Restore world
     if (currentMapName != null) restoreWorld(currentMapName);
 
-    // Clear boss bar
+    // Clear boss bar (countdown or running event)
     if (bossBar != null) {
-      bossBar.removeAll();
+        bossBar.removeAll();
+        bossBar = null; // set to null so future events create a new one
     }
 
     // Reset state
