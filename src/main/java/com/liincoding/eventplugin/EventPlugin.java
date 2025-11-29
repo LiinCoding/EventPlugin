@@ -27,7 +27,7 @@ public class EventPlugin extends JavaPlugin {
         );
 
         getServer().getPluginManager().registerEvents(
-            new listeners.EventPlayerQuitListener(eventManager), this
+            new EventPlayerQuitListener(eventManager), this
         );
 
     }
