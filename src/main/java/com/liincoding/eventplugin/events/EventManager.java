@@ -62,7 +62,8 @@ public class EventManager {
     return currentEventName;
   }
 
-  public Map<UUID, PlayerData> getEventPlayers() {
+  public Map < UUID,
+  PlayerData > getEventPlayers() {
     return eventPlayers;
   }
 
@@ -184,9 +185,7 @@ public class EventManager {
       Player player = Bukkit.getPlayer(uuid);
       if (player != null && player.isOnline()) {
         PlayerData data = eventPlayers.get(uuid);
-        player.teleport(data.getLocation());
-        player.getInventory().setContents(data.getInventory());
-        player.setGameMode(GameMode.SURVIVAL);
+        data.restore(player); // restore everything
       }
     }
 
@@ -284,11 +283,15 @@ public class EventManager {
   }
 
   public void leaveEvent(Player player) {
+    // Handle HideNSeek-specific logic first
+    if (currentEventType instanceof HideNSeekEvent hideEvent) {
+      hideEvent.leaveEvent(this, player);
+    }
+
+    // Restore all player data
     PlayerData data = eventPlayers.remove(player.getUniqueId());
     if (data != null) {
-      player.teleport(data.getLocation());
-      player.getInventory().setContents(data.getInventory());
-      player.setGameMode(GameMode.SURVIVAL);
+      data.restore(player); // restores inventory, armor, location, health, food, XP, level, effects, gamemode, fire ticks
     }
   }
 
