@@ -1,6 +1,9 @@
 package com.liincoding.eventplugin.events;
 
+import com.liincoding.eventplugin.EventPlugin;
 import org.bukkit.entity.Player;
+import org.bukkit.Location;
+import org.bukkit.Bukkit;
 
 public class HideNSeekEvent implements EventManager.EventType {
 
