@@ -1,6 +1,6 @@
 package com.liincoding.eventplugin.events;
 
-import com.liincoding.eventplugin.PlayerData;
+import com.liincoding.eventplugin.events.PlayerData;
 import com.liincoding.eventplugin.EventPlugin;
 
 import org.bukkit.Bukkit;
