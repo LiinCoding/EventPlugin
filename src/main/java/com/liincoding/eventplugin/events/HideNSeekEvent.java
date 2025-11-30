@@ -70,8 +70,32 @@ Listener {
     seeker.sendMessage("§cYou are the Seeker!");
     seeker.setGameMode(GameMode.SURVIVAL);
 
-    // Equip seeker with weapons and rockets
-    equipSeeker(seeker); // <--- call here
+    // Teleport seeker to event spawn
+    if (eventSpawn != null) {
+      seeker.teleport(eventSpawn);
+    }
+
+    seeker.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1, false, false));
+
+    seeker.setWalkSpeed(0f);
+    seeker.setFlySpeed(0f);
+
+    // Delay 10 seconds → give equipment + unfreeze
+    new BukkitRunnable() {
+        @Override
+        public void run() {
+            if (!seeker.isOnline()) return;
+
+            // Restore movement
+            seeker.setWalkSpeed(0.2f);
+            seeker.setFlySpeed(0.1f);
+
+            // Now give the seeker equipment
+            equipSeeker(seeker);
+
+            seeker.sendMessage("§aYour blindness has worn off. Go hunt!");
+        }
+    }.runTaskLater(plugin, 200L);
 
     // Rest are hiders
     for (Player p: players) {
