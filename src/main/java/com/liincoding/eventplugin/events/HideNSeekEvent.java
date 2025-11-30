@@ -20,12 +20,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.EventHandler;
-import org.bukkit.GameMode;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.World;
 import org.bukkit.Location;
@@ -36,14 +32,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Random;
 
-public class HideNSeekEvent implements EventManager.EventType,
-Listener {
+public class HideNSeekEvent implements EventManager.EventType, Listener {
 
   private final EventPlugin plugin;
   private Player seeker;
   private final List < Player > hiders = new ArrayList < >();
   private final Random random = new Random();
   private World eventWorld;
+  private Location eventSpawn;
 
   public HideNSeekEvent(EventPlugin plugin) {
     this.plugin = plugin;
@@ -64,7 +60,8 @@ Listener {
 
     if (players.isEmpty()) return;
 
-    eventWorld = manager.getEventWorld(manager.getCurrentEventWorldName());
+    eventWorld = Bukkit.getWorld(manager.getCurrentEventWorldName());
+eventSpawn = manager.getSpawnLocation(eventWorld, manager.getCurrentEventName(), manager.getTemplateMapName());
 
     // Pick 1 seeker randomly
     seeker = players.get(random.nextInt(players.size()));
@@ -113,6 +110,8 @@ Listener {
 
     hiders.clear();
     seeker = null;
+    eventWorld = null;
+    eventSpawn = null;
   }
 
   @EventHandler
@@ -141,11 +140,9 @@ Listener {
           player.spigot().respawn();
 
           // Teleport to event world spawn
-          World eventWorld = manager.getEventWorld(manager.getCurrentEventWorldName());
-          Location spawn = manager.getSpawnLocation(eventWorld, manager.getCurrentEventName(), manager.getTemplateMapName());
-          if (spawn != null) {
-            player.teleport(spawn);
-          }
+if (eventSpawn != null) {
+    player.teleport(eventSpawn);
+}
 
           // Set to spectator
           player.setGameMode(GameMode.SPECTATOR);
