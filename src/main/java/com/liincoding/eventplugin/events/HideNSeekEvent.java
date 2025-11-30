@@ -32,7 +32,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Random;
 
-public class HideNSeekEvent implements EventManager.EventType, Listener {
+public class HideNSeekEvent implements EventManager.EventType,
+Listener {
 
   private final EventPlugin plugin;
   private Player seeker;
@@ -61,7 +62,7 @@ public class HideNSeekEvent implements EventManager.EventType, Listener {
     if (players.isEmpty()) return;
 
     eventWorld = Bukkit.getWorld(manager.getCurrentEventWorldName());
-eventSpawn = manager.getSpawnLocation(eventWorld, manager.getCurrentEventName(), manager.getTemplateMapName());
+    eventSpawn = manager.getEventSpawnLocation();
 
     // Pick 1 seeker randomly
     seeker = players.get(random.nextInt(players.size()));
@@ -140,9 +141,9 @@ eventSpawn = manager.getSpawnLocation(eventWorld, manager.getCurrentEventName(),
           player.spigot().respawn();
 
           // Teleport to event world spawn
-if (eventSpawn != null) {
-    player.teleport(eventSpawn);
-}
+          if (eventSpawn != null) {
+            player.teleport(eventSpawn);
+          }
 
           // Set to spectator
           player.setGameMode(GameMode.SPECTATOR);

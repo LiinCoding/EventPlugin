@@ -73,6 +73,12 @@ public class EventManager {
     return templateMapName;
   }
 
+  public Location getEventSpawnLocation() {
+    if (currentEventWorldName == null || currentEventName == null || templateMapName == null) return null;
+      World world = getEventWorld(currentEventWorldName); // still private, but we're inside EventManager
+      return getSpawnLocation(world, currentEventName, templateMapName);
+  }
+
   public Map < UUID,
   PlayerData > getEventPlayers() {
     return eventPlayers;
