@@ -26,6 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.World;
 import org.bukkit.Location;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -203,18 +204,19 @@ Listener {
   }
 
   @EventHandler
-  public void onSprint(PlayerToggleSprintEvent event) {
+public void onSprint(PlayerToggleSprintEvent event) {
     Player player = event.getPlayer();
-
-    // Only block sprint for hiders
-    if (!hiders.contains(player)) return;
-
-    // Cancel sprint toggle
-    if (event.isSprinting()) {
-      event.setCancelled(true);
-      player.setSprinting(false); // ensure sprint stops
-      player.setWalkSpeed(0.2f); // reset walk speed to normal (default is 0.2)
-      player.sendMessage("§cHiders cannot sprint!");
+    if (hiders.contains(player) && event.isSprinting()) {
+        event.setCancelled(true);
+        player.setSprinting(false);
     }
-  }
+}
+
+  @EventHandler
+public void onMove(PlayerMoveEvent event) {
+    Player player = event.getPlayer();
+    if (hiders.contains(player) && player.isSprinting()) {
+        player.setSprinting(false);
+    }
+}
 }
