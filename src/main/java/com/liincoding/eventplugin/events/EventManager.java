@@ -182,6 +182,10 @@ public class EventManager {
 
     if (!eventRunning) return;
 
+    if (currentEventType != null) {
+      currentEventType.onEnd(this);
+    }
+
     // Restore all players
     for (UUID uuid: eventPlayers.keySet()) {
       Player player = Bukkit.getPlayer(uuid);
