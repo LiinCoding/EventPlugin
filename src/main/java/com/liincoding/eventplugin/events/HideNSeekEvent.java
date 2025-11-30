@@ -26,6 +26,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.World;
 import org.bukkit.Location;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.ArrayList;
