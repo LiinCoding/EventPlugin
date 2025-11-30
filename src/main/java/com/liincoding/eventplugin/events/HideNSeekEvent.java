@@ -141,7 +141,8 @@ Listener {
           player.spigot().respawn();
 
           // Teleport to event world spawn
-          Location spawn = eventWorld.getSpawnLocation(); // use eventWorld
+          World eventWorld = manager.getEventWorld(manager.getCurrentEventWorldName());
+          Location spawn = manager.getSpawnLocation(eventWorld, manager.getCurrentEventName(), manager.getTemplateMapName());
           if (spawn != null) {
             player.teleport(spawn);
           }
