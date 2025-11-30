@@ -125,27 +125,28 @@ Listener {
   public void onHiderDeath(PlayerDeathEvent event) {
     Player player = event.getEntity();
 
-    // Check if the dead player is a hider
     if (hiders.contains(player)) {
-
       // Prevent drops and XP
       event.getDrops().clear();
       event.setDroppedExp(0);
 
-      // Respawn and set spectator after 1 tick
+      // Schedule a task 1 tick later to respawn the player
       new BukkitRunnable() {@Override
         public void run() {
-          if (player.isOnline()) {
-            // Set to spectator
-            player.setGameMode(GameMode.SPECTATOR);
+          if (!player.isOnline()) return;
 
-            // Teleport to event world spawn
-            World eventWorld = player.getWorld(); // could also store reference to event world
-            Location spawn = eventWorld.getSpawnLocation(); // or manager.getSpawnLocation()
-            if (spawn != null) {
-              player.teleport(spawn);
-            }
+          // Force respawn
+          player.spigot().respawn();
+
+          // Teleport to event world spawn
+          World eventWorld = player.getWorld(); // or store reference to event world
+          Location spawn = eventWorld.getSpawnLocation();
+          if (spawn != null) {
+            player.teleport(spawn);
           }
+
+          // Set to spectator
+          player.setGameMode(GameMode.SPECTATOR);
         }
       }.runTaskLater(plugin, 1L);
     }
