@@ -27,6 +27,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.GameMode;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.World;
+import org.bukkit.Location;
 
 import java.util.Map;
 import java.util.ArrayList;
