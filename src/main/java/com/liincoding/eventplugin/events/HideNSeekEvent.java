@@ -25,6 +25,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.World;
 import org.bukkit.Location;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -199,5 +200,19 @@ Listener {
 
     // Give to offhand
     inv.setItemInOffHand(fireworkStack);
+  }
+
+  @EventHandler
+  public void onSprint(PlayerToggleSprintEvent event) {
+    Player player = event.getPlayer();
+
+    // Only block sprint for hiders
+    if (!hiders.contains(player)) return;
+
+    if (event.isSprinting()) {
+      event.setCancelled(true);
+      player.setSprinting(false);
+      player.sendMessage("§cHiders cannot sprint!");
+    }
   }
 }
