@@ -153,7 +153,7 @@ public class EventManager {
     }.runTaskTimer(plugin, 0L, 20L); // 20 ticks = 1 second
   }
 
-  private Location getSpawnLocation(World world, String eventName, String mapName){
+  private Location getSpawnLocation(World world, String eventName, String mapName) {
     FileConfiguration config = plugin.getConfig();
     double x = config.getDouble("events." + eventName + ".spawn." + mapName + ".x");
     double y = config.getDouble("events." + eventName + ".spawn." + mapName + ".y");
@@ -178,8 +178,11 @@ public class EventManager {
     }
 
     if (currentEventWorldName != null) {
-      Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv delete " + currentEventWorldName);
+      World eventWorld = getEventWorld(currentEventWorldName);
+      deleteWorld(eventWorld);
       currentEventWorldName = null;
+      templateMapName = null;
+      currentEventType = null;
     }
 
     // Clear boss bar (countdown or running event)
@@ -212,6 +215,28 @@ public class EventManager {
 
     eventRunning = true;
     currentEventName = eventName;
+  }
+
+  public void deleteWorld(World world) {
+    if (world == null) return;
+
+    // Teleport any players out
+    for (Player player: world.getPlayers()) {
+      player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+    }
+
+    // Unload the world
+    Bukkit.unloadWorld(world, false);
+
+    // Delete world folder
+    try {
+      File worldFolder = world.getWorldFolder();
+      if (worldFolder.exists()) {
+        FileUtils.deleteDirectory(worldFolder);
+      }
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public boolean isInEvent(UUID uuid) {
