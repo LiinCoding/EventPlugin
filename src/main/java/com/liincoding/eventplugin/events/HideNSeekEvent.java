@@ -78,7 +78,7 @@ Listener {
     }
 
     seeker.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1, false, false));
-    seeker.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 200, 250, false, false, false));
+    seeker.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 200, 250, false, false, false));
 
     seeker.setWalkSpeed(0f);
     seeker.setFlySpeed(0f);
