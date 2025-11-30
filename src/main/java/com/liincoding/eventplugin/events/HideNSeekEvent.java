@@ -82,7 +82,9 @@ Listener {
         // Set hider health to 2 hearts
         p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(4.0);
         p.setHealth(4.0); // Also set current health
-        
+        p.setFoodLevel(3); // drops hunger to 3 (≤ 6 prevents sprinting)
+        p.setSaturation(0); // ensures they can't immediately regen food
+
         // Apply tiny scale via console command
         Bukkit.dispatchCommand(
         Bukkit.getConsoleSender(), "attribute " + p.getUniqueId() + " minecraft:scale base set 0.08");
@@ -90,9 +92,6 @@ Listener {
         hiders.add(p);
       }
     }
-
-    forceHidersSneak();
-
   }
 
   @Override
@@ -203,23 +202,5 @@ Listener {
 
     // Give to offhand
     inv.setItemInOffHand(fireworkStack);
-  }
-
-  // Call this after assigning hiders in onStart
-  private void forceHidersSneak() {
-    for (Player hider: hiders) {
-      if (hider.isOnline()) {
-        hider.setSneaking(true); // force sneaking
-      }
-    }
-  }
-
-  // Event handler to prevent them from stopping sneaking
-  @EventHandler
-  public void onHiderMove(PlayerMoveEvent event) {
-    Player player = event.getPlayer();
-    if (hiders.contains(player) && !player.isSneaking()) {
-      player.setSneaking(true); // reapply sneaking
-    }
   }
 }
