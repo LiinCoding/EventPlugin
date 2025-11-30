@@ -209,9 +209,11 @@ Listener {
     // Only block sprint for hiders
     if (!hiders.contains(player)) return;
 
+    // Cancel sprint toggle
     if (event.isSprinting()) {
       event.setCancelled(true);
-      player.setSprinting(false);
+      player.setSprinting(false); // ensure sprint stops
+      player.setWalkSpeed(0.2f); // reset walk speed to normal (default is 0.2)
       player.sendMessage("§cHiders cannot sprint!");
     }
   }
