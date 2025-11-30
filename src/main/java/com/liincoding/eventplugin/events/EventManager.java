@@ -265,6 +265,10 @@ public class EventManager {
     eventPlayers.put(player.getUniqueId(), new PlayerData(player));
     player.setGameMode(GameMode.ADVENTURE);
 
+    player.getInventory().clear();
+    player.getInventory().setArmorContents(null);
+    player.getInventory().setItemInOffHand(null);
+
     // Teleport to event world spawn if event already started
     if (eventRunning) {
       World world = getEventWorld(currentEventWorldName);
