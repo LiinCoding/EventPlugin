@@ -75,8 +75,8 @@ public class EventManager {
 
   public Location getEventSpawnLocation() {
     if (currentEventWorldName == null || currentEventName == null || templateMapName == null) return null;
-      World world = getEventWorld(currentEventWorldName); // still private, but we're inside EventManager
-      return getSpawnLocation(world, currentEventName, templateMapName);
+    World world = getEventWorld(currentEventWorldName); // still private, but we're inside EventManager
+    return getSpawnLocation(world, currentEventName, templateMapName);
   }
 
   public Map < UUID,
@@ -285,11 +285,11 @@ public class EventManager {
     addPlayer(player); // already stores inventory/location and sets gamemode
   }
 
-  public void leaveEvent(Player player) {
+  public boolean leaveEvent(Player player) {
     // Check if the player is in the event
     if (!isInEvent(player.getUniqueId())) {
-        player.sendMessage("§cYou are not currently in an event!");
-        return;
+      player.sendMessage("§cYou are not currently in an event!");
+      return false; // ❌ did NOT leave
     }
 
     // Handle HideNSeek-specific logic first
@@ -300,8 +300,10 @@ public class EventManager {
     // Restore all player data
     PlayerData data = eventPlayers.remove(player.getUniqueId());
     if (data != null) {
-      data.restore(player); // restores inventory, armor, location, health, food, XP, level, effects, gamemode, fire ticks
+      data.restore(player);
     }
+
+    return true; // ✅ successfully left
   }
 
   public World getEventWorld(String mapName) {

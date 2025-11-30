@@ -8,111 +8,114 @@ import org.bukkit.entity.Player;
 
 public class EventCommand implements CommandExecutor {
 
-    private final EventManager manager;
+  private final EventManager manager;
 
-    public EventCommand(EventManager manager) {
-        this.manager = manager;
+  public EventCommand(EventManager manager) {
+    this.manager = manager;
+  }
+
+  @Override
+  public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+    if (args.length == 0) {
+      sender.sendMessage("Usage: /event <start|join|leave|end>");
+      return true;
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    String sub = args[0].toLowerCase();
 
-        if (args.length == 0) {
-            sender.sendMessage("Usage: /event <start|join|leave|end>");
-            return true;
-        }
+    switch (sub) {
 
-        String sub = args[0].toLowerCase();
-
-        switch (sub) {
-
-            case "start":
-                if (!sender.hasPermission("event.start")) {
-                    sender.sendMessage("§cYou do not have permission.");
-                    return true;
-                }
-
-                if (args.length < 2) {
-                    sender.sendMessage("Usage: /event start <eventName> [mapName]");
-                    return true;
-                }
-
-                String eventName = args[1];
-                String mapName = null;
-
-                if (args.length >= 3) {
-                    mapName = args[2];
-                }
-
-                manager.startEvent(eventName, mapName);
-                sender.sendMessage("Event started!");
-                break;
-
-            case "join":
-                if (!(sender instanceof Player player)) {
-                    sender.sendMessage("Only players can join events.");
-                    return true;
-                }
-
-                if (!sender.hasPermission("event.join")) {
-                    sender.sendMessage("§cYou do not have permission.");
-                    return true;
-                }
-
-                if (!manager.isEventRunning()) {
-                    sender.sendMessage("§cThere is no event running right now.");
-                    return true;
-                }
-
-                if (manager.hasEventStarted()) {
-                    sender.sendMessage("§cYou can no longer join — the event has already begun!");
-                    return true;
-                }
-
-                if (manager.isInEvent(player.getUniqueId())) {
-                    sender.sendMessage("§eYou are already in the event.");
-                    return true;
-                }
-
-                manager.joinEvent(player);
-                sender.sendMessage("§aYou joined the event.");
-                break;
-
-            case "leave":
-                if (!(sender instanceof Player player2)) {
-                    sender.sendMessage("Only players can leave events.");
-                    return true;
-                }
-
-                if (!sender.hasPermission("event.leave")) {
-                    sender.sendMessage("§cYou do not have permission.");
-                    return true;
-                }
-
-                manager.leaveEvent(player2);
-                sender.sendMessage("You left the event.");
-                break;
-
-            case "end":
-                if (!sender.hasPermission("event.admin")) {
-                    sender.sendMessage("§cYou do not have permission.");
-                    return true;
-                }
-
-                if (!manager.isEventRunning()) {
-                    sender.sendMessage("§cNo event is currently running.");
-                    return true;
-                }
-
-                manager.endEvent();
-                sender.sendMessage("§aEvent has been ended.");
-                break;
-
-            default:
-                sender.sendMessage("Unknown subcommand. Usage: /event <start|join|leave|end>");
-                break;
-        }
-
+    case "start":
+      if (!sender.hasPermission("event.start")) {
+        sender.sendMessage("§cYou do not have permission.");
         return true;
+      }
+
+      if (args.length < 2) {
+        sender.sendMessage("Usage: /event start <eventName> [mapName]");
+        return true;
+      }
+
+      String eventName = args[1];
+      String mapName = null;
+
+      if (args.length >= 3) {
+        mapName = args[2];
+      }
+
+      manager.startEvent(eventName, mapName);
+      sender.sendMessage("Event started!");
+      break;
+
+    case "join":
+      if (! (sender instanceof Player player)) {
+        sender.sendMessage("Only players can join events.");
+        return true;
+      }
+
+      if (!sender.hasPermission("event.join")) {
+        sender.sendMessage("§cYou do not have permission.");
+        return true;
+      }
+
+      if (!manager.isEventRunning()) {
+        sender.sendMessage("§cThere is no event running right now.");
+        return true;
+      }
+
+      if (manager.hasEventStarted()) {
+        sender.sendMessage("§cYou can no longer join — the event has already begun!");
+        return true;
+      }
+
+      if (manager.isInEvent(player.getUniqueId())) {
+        sender.sendMessage("§eYou are already in the event.");
+        return true;
+      }
+
+      manager.joinEvent(player);
+      sender.sendMessage("§aYou joined the event.");
+      break;
+
+    case "leave":
+      if (! (sender instanceof Player player2)) {
+        sender.sendMessage("Only players can leave events.");
+        return true;
+      }
+
+      if (!sender.hasPermission("event.leave")) {
+        sender.sendMessage("§cYou do not have permission.");
+        return true;
+      }
+
+      boolean left = manager.leaveEvent(player2);
+
+      if (left) {
+        sender.sendMessage("You left the event.");
+      }
+
+      break;
+    case "end":
+      if (!sender.hasPermission("event.admin")) {
+        sender.sendMessage("§cYou do not have permission.");
+        return true;
+      }
+
+      if (!manager.isEventRunning()) {
+        sender.sendMessage("§cNo event is currently running.");
+        return true;
+      }
+
+      manager.endEvent();
+      sender.sendMessage("§aEvent has been ended.");
+      break;
+
+    default:
+      sender.sendMessage("Unknown subcommand. Usage: /event <start|join|leave|end>");
+      break;
     }
+
+    return true;
+  }
 }
