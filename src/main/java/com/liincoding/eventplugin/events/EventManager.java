@@ -290,7 +290,7 @@ public class EventManager {
     }
   }
 
-  private World getEventWorld(String mapName) {
+  public World getEventWorld(String mapName) {
     return Bukkit.getWorld(mapName);
   }
 }
