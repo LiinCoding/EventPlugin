@@ -21,6 +21,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.EventHandler;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -110,6 +112,41 @@ Listener {
       if (hiders.contains(damager)) {
         event.setCancelled(true);
       }
+    }
+  }
+
+  import org.bukkit.event.entity.PlayerDeathEvent;
+  import org.bukkit.event.EventHandler;
+  import org.bukkit.GameMode;
+  import org.bukkit.scheduler.BukkitRunnable;
+
+  @EventHandler
+  public void onHiderDeath(PlayerDeathEvent event) {
+    Player player = event.getEntity();
+
+    // Check if the dead player is a hider
+    if (hiders.contains(player)) {
+
+      // Prevent drops and XP
+      event.getDrops().clear();
+      event.setDroppedExp(0);
+
+      // Respawn and set spectator after 1 tick
+      new BukkitRunnable() {@Override
+        public void run() {
+          if (player.isOnline()) {
+            // Set to spectator
+            player.setGameMode(GameMode.SPECTATOR);
+
+            // Teleport to event world spawn
+            World eventWorld = player.getWorld(); // could also store reference to event world
+            Location spawn = eventWorld.getSpawnLocation(); // or manager.getSpawnLocation()
+            if (spawn != null) {
+              player.teleport(spawn);
+            }
+          }
+        }
+      }.runTaskLater(plugin, 1L);
     }
   }
 
