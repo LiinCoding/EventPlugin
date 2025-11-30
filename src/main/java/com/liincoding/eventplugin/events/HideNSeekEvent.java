@@ -78,6 +78,7 @@ Listener {
     }
 
     seeker.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1, false, false));
+    seeker.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 200, 250, false, false, false));
 
     seeker.setWalkSpeed(0f);
     seeker.setFlySpeed(0f);
@@ -94,8 +95,6 @@ Listener {
 
             // Now give the seeker equipment
             equipSeeker(seeker);
-
-            seeker.sendMessage("§aYour blindness has worn off. Go hunt!");
         }
     }.runTaskLater(plugin, 200L);
 
