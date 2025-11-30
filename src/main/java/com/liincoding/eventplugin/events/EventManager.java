@@ -268,6 +268,12 @@ public class EventManager {
   }
 
   public void leaveEvent(Player player) {
+    // Check if the player is in the event
+    if (!isInEvent(player.getUniqueId())) {
+        player.sendMessage("§cYou are not currently in an event!");
+        return;
+    }
+
     // Handle HideNSeek-specific logic first
     if (currentEventType instanceof HideNSeekEvent hideEvent) {
       hideEvent.leaveEvent(this, player);
