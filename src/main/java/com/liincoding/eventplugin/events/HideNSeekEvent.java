@@ -43,6 +43,7 @@ Listener {
   private Player seeker;
   private final List < Player > hiders = new ArrayList < >();
   private final Random random = new Random();
+  private World eventWorld;
 
   public HideNSeekEvent(EventPlugin plugin) {
     this.plugin = plugin;
@@ -62,6 +63,8 @@ Listener {
     }
 
     if (players.isEmpty()) return;
+
+    eventWorld = manager.getEventWorld(manager.getCurrentEventWorldName());
 
     // Pick 1 seeker randomly
     seeker = players.get(random.nextInt(players.size()));
@@ -125,12 +128,11 @@ Listener {
   public void onHiderDeath(PlayerDeathEvent event) {
     Player player = event.getEntity();
 
-    if (hiders.contains(player)) {
+    if (hiders.contains(player) && eventWorld != null) {
       // Prevent drops and XP
       event.getDrops().clear();
       event.setDroppedExp(0);
 
-      // Schedule a task 1 tick later to respawn the player
       new BukkitRunnable() {@Override
         public void run() {
           if (!player.isOnline()) return;
@@ -139,8 +141,7 @@ Listener {
           player.spigot().respawn();
 
           // Teleport to event world spawn
-          World eventWorld = player.getWorld(); // or store reference to event world
-          Location spawn = eventWorld.getSpawnLocation();
+          Location spawn = eventWorld.getSpawnLocation(); // use eventWorld
           if (spawn != null) {
             player.teleport(spawn);
           }
