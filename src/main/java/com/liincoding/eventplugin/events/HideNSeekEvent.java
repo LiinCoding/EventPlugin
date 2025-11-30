@@ -23,6 +23,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.EventHandler;
+import org.bukkit.GameMode;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -114,11 +118,6 @@ Listener {
       }
     }
   }
-
-  import org.bukkit.event.entity.PlayerDeathEvent;
-  import org.bukkit.event.EventHandler;
-  import org.bukkit.GameMode;
-  import org.bukkit.scheduler.BukkitRunnable;
 
   @EventHandler
   public void onHiderDeath(PlayerDeathEvent event) {
