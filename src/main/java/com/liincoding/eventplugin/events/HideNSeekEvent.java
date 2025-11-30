@@ -25,7 +25,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.World;
 import org.bukkit.Location;
-import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Map;
@@ -83,7 +82,7 @@ Listener {
         // Set hider health to 2 hearts
         p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(4.0);
         p.setHealth(4.0); // Also set current health
-
+        
         // Apply tiny scale via console command
         Bukkit.dispatchCommand(
         Bukkit.getConsoleSender(), "attribute " + p.getUniqueId() + " minecraft:scale base set 0.08");
@@ -91,6 +90,9 @@ Listener {
         hiders.add(p);
       }
     }
+
+    forceHidersSneak();
+
   }
 
   @Override
@@ -203,20 +205,21 @@ Listener {
     inv.setItemInOffHand(fireworkStack);
   }
 
-  @EventHandler
-public void onSprint(PlayerToggleSprintEvent event) {
-    Player player = event.getPlayer();
-    if (hiders.contains(player) && event.isSprinting()) {
-        event.setCancelled(true);
-        player.setSprinting(false);
+  // Call this after assigning hiders in onStart
+  private void forceHidersSneak() {
+    for (Player hider: hiders) {
+      if (hider.isOnline()) {
+        hider.setSneaking(true); // force sneaking
+      }
     }
-}
+  }
 
+  // Event handler to prevent them from stopping sneaking
   @EventHandler
-public void onMove(PlayerMoveEvent event) {
+  public void onHiderMove(PlayerMoveEvent event) {
     Player player = event.getPlayer();
-    if (hiders.contains(player) && player.isSprinting()) {
-        player.setSprinting(false);
+    if (hiders.contains(player) && !player.isSneaking()) {
+      player.setSneaking(true); // reapply sneaking
     }
-}
+  }
 }
