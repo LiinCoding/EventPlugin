@@ -65,6 +65,10 @@ public class EventManager {
     return currentEventName;
   }
 
+  public String getCurrentEventWorldName() {
+    return currentEventWorldName;
+  }
+
   public Map < UUID,
   PlayerData > getEventPlayers() {
     return eventPlayers;
