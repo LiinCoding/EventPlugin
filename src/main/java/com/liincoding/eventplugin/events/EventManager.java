@@ -33,13 +33,15 @@ public class EventManager {
   private String currentEventName;
   private BossBar bossBar;
   private static final int MIN_PLAYERS = 2;
-  private File worldBackup = null;
   private String currentMapName;
   private final Random rand = new Random();
   private EventType currentEventType = null;
+  private String currentEventWorldName;
+  private String templateMapName;
 
   // Stores original player locations and inventories
-  private final Map < UUID, PlayerData > eventPlayers = new HashMap < >();
+  private final Map < UUID,
+  PlayerData > eventPlayers = new HashMap < >();
 
   public EventManager(EventPlugin plugin) {
     this.plugin = plugin;
@@ -91,39 +93,25 @@ public class EventManager {
       return;
     }
 
-    currentMapName = mapName;
-    String worldName = mapName;
+    String templateMap = mapName; // the original world template
+    currentEventWorldName = templateMap + "_event_" + System.currentTimeMillis(); // unique name
 
-    // Try to create a backup
-    if (!backupWorld(worldName)) {
-      plugin.getLogger().warning("Event aborted: world backup failed for " + worldName);
-      Bukkit.broadcastMessage("§cCannot start event '" + eventName + "': world backup failed!");
-      return; // abort event
-    }
+    // Clone the template world via Multiverse
+    Bukkit.dispatchCommand(
+    Bukkit.getConsoleSender(), "mv clone " + templateMap + " " + currentEventWorldName);
 
-    World eventWorld = Bukkit.getWorld(worldName);
-    if (eventWorld == null) {
-      plugin.getLogger().warning("Event world '" + worldName + "' is not loaded!");
-      Bukkit.broadcastMessage("§cCannot start event '" + eventName + "': world not loaded!");
-      return; // abort event
-    }
+    // Wait for world to load
+    new org.bukkit.scheduler.BukkitRunnable() {@Override
+      public void run() {
+        World eventWorld = Bukkit.getWorld(currentEventWorldName);
+        if (eventWorld != null) {
+          setupEventWorld(eventWorld, eventName); // sets borders, initializes event, boss bar, etc.
+          cancel();
+        }
+      }
+    }.runTaskTimer(plugin, 0L, 1L); // check every tick
 
-    if (eventName.equalsIgnoreCase("hideNseek")) {
-      int baseBorder = 30; // starting border
-      int extraPer5Players = 10;
-      int borderSize = baseBorder + ((eventPlayers.size() / 5) * extraPer5Players);
-      eventWorld.getWorldBorder().setCenter(getSpawnLocation(eventName, mapName)); // center at spawn
-      eventWorld.getWorldBorder().setSize(borderSize * 2); // Bukkit size = diameter
-    }
-
-    eventRunning = true;
-    currentEventName = eventName;
-
-    if (eventName.equalsIgnoreCase("hideNseek")) {
-      currentEventType = new HideNSeekEvent(plugin); // pass plugin if needed
-    } else {
-      currentEventType = null; // generic event, no special logic
-    }
+    templateMapName = templateMap;
 
     bossBar = Bukkit.createBossBar("Event " + eventName + " starting in 30s", BarColor.GREEN, BarStyle.SOLID);
 
@@ -165,12 +153,11 @@ public class EventManager {
     }.runTaskTimer(plugin, 0L, 20L); // 20 ticks = 1 second
   }
 
-  private Location getSpawnLocation(String eventName, String mapName) {
+  private Location getSpawnLocation(World world, String eventName, String mapName){
     FileConfiguration config = plugin.getConfig();
     double x = config.getDouble("events." + eventName + ".spawn." + mapName + ".x");
     double y = config.getDouble("events." + eventName + ".spawn." + mapName + ".y");
     double z = config.getDouble("events." + eventName + ".spawn." + mapName + ".z");
-    World world = Bukkit.getWorld(mapName);
     if (world == null) return null;
     return new Location(world, x, y, z);
   }
@@ -190,8 +177,10 @@ public class EventManager {
       }
     }
 
-    // Restore world
-    if (currentMapName != null) restoreWorld(currentMapName);
+    if (currentEventWorldName != null) {
+      Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv delete " + currentEventWorldName);
+      currentEventWorldName = null;
+    }
 
     // Clear boss bar (countdown or running event)
     if (bossBar != null) {
@@ -207,56 +196,26 @@ public class EventManager {
     plugin.getLogger().info("Event has ended.");
   }
 
+  private void setupEventWorld(World eventWorld, String eventName) {
+
+    if (eventName.equalsIgnoreCase("hideNseek")) {
+      int baseBorder = 30;
+      int extraPer5Players = 10;
+      int borderSize = baseBorder + ((eventPlayers.size() / 5) * extraPer5Players);
+      eventWorld.getWorldBorder().setCenter(getSpawnLocation(eventWorld, eventName, templateMapName));
+      eventWorld.getWorldBorder().setSize(borderSize * 2);
+
+      currentEventType = new HideNSeekEvent(plugin);
+    } else {
+      currentEventType = null;
+    }
+
+    eventRunning = true;
+    currentEventName = eventName;
+  }
+
   public boolean isInEvent(UUID uuid) {
     return eventPlayers.containsKey(uuid);
-  }
-
-  private boolean backupWorld(String worldName) {
-    File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
-    if (!worldFolder.exists()) {
-      plugin.getLogger().warning("World " + worldName + " does not exist!");
-      return false;
-    }
-
-    worldBackup = new File(Bukkit.getWorldContainer(), worldName + "_backup");
-    try {
-      if (worldBackup.exists()) FileUtils.deleteDirectory(worldBackup);
-      FileUtils.copyDirectory(worldFolder, worldBackup);
-      plugin.getLogger().info("Backup of world '" + worldName + "' created.");
-      return true;
-    } catch(IOException e) {
-      e.printStackTrace();
-      plugin.getLogger().warning("Failed to backup world '" + worldName + "'");
-      return false;
-    }
-  }
-
-  private void restoreWorld(String worldName) {
-    if (worldBackup == null || !worldBackup.exists()) {
-      plugin.getLogger().warning("No backup found for world '" + worldName + "'");
-      return;
-    }
-
-    File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
-
-    try {
-      // Step 1: Delete the current world folder if it exists
-      if (worldFolder.exists()) {
-        FileUtils.deleteDirectory(worldFolder);
-      }
-
-      // Step 2: Copy backup to the world folder
-      FileUtils.copyDirectory(worldBackup, worldFolder);
-
-      // Step 3: Only delete the backup AFTER successful copy
-      FileUtils.deleteDirectory(worldBackup);
-      worldBackup = null;
-
-      plugin.getLogger().info("World '" + worldName + "' restored successfully from backup.");
-    } catch(IOException e) {
-      plugin.getLogger().severe("Failed to restore world '" + worldName + "'. Backup is still intact!");
-      e.printStackTrace();
-    }
   }
 
   public void addPlayer(Player player) {
@@ -265,9 +224,9 @@ public class EventManager {
 
     // Teleport to event world spawn if event already started
     if (eventRunning) {
-      World world = getEventWorld(currentMapName);
+      World world = getEventWorld(currentEventWorldName);
       if (world != null) {
-        Location spawn = getSpawnLocation(currentEventName, currentMapName);
+        Location spawn = getSpawnLocation(world, currentEventName, templateMapName);
         if (spawn != null) player.teleport(spawn);
         else player.sendMessage("§cEvent spawn location not found!");
       } else {
