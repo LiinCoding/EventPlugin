@@ -28,12 +28,19 @@ import org.bukkit.Location;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard. * ;
 
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.Random;
+
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.types.PermissionNode;
+import net.luckperms.api.node.Node;
 
 public class HideNSeekEvent implements EventManager.EventType,
 Listener {
@@ -44,6 +51,8 @@ Listener {
   private final Random random = new Random();
   private World eventWorld;
   private Location eventSpawn;
+  private Scoreboard scoreboard;
+  private Objective objective;
 
   public HideNSeekEvent(EventPlugin plugin) {
     this.plugin = plugin;
@@ -84,18 +93,17 @@ Listener {
     seeker.setFlySpeed(0f);
 
     // Delay 10 seconds → give equipment + unfreeze
-    new BukkitRunnable() {
-        @Override
-        public void run() {
-            if (!seeker.isOnline()) return;
+    new BukkitRunnable() {@Override
+      public void run() {
+        if (!seeker.isOnline()) return;
 
-            // Restore movement
-            seeker.setWalkSpeed(0.2f);
-            seeker.setFlySpeed(0.1f);
+        // Restore movement
+        seeker.setWalkSpeed(0.2f);
+        seeker.setFlySpeed(0.1f);
 
-            // Now give the seeker equipment
-            equipSeeker(seeker);
-        }
+        // Now give the seeker equipment
+        equipSeeker(seeker);
+      }
     }.runTaskLater(plugin, 200L);
 
     // Rest are hiders
@@ -117,6 +125,7 @@ Listener {
         hiders.add(p);
       }
     }
+    updateScoreboard();
   }
 
   @Override
@@ -141,6 +150,21 @@ Listener {
     seeker = null;
     eventWorld = null;
     eventSpawn = null;
+    if (scoreboard != null) {
+      for (Player p: Bukkit.getOnlinePlayers()) {
+        if (p.getScoreboard() == scoreboard) {
+          p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        }
+      }
+    }
+
+    for (UUID uuid: manager.getEventPlayers().keySet()) {
+      Player p = Bukkit.getPlayer(uuid);
+      if (p != null) removeSpectatorPermission(p);
+    }
+
+    scoreboard = null;
+    objective = null;
   }
 
   @EventHandler
@@ -175,6 +199,14 @@ Listener {
 
           // Set to spectator
           player.setGameMode(GameMode.SPECTATOR);
+          giveSpectatorPermission(player);
+
+          new BukkitRunnable() {@Override
+            public void run() {
+              hiders.remove(player);
+              updateScoreboard();
+            }
+          }.runTaskLater(plugin, 2L);
         }
       }.runTaskLater(plugin, 1L);
     }
@@ -198,6 +230,8 @@ Listener {
     if (data != null) {
       data.restore(player);
     }
+    removeSpectatorPermission(player);
+    updateScoreboard();
   }
 
   private void equipSeeker(Player seeker) {
@@ -228,4 +262,63 @@ Listener {
     // Give to offhand
     inv.setItemInOffHand(fireworkStack);
   }
+
+  private void updateScoreboard() {
+    if (scoreboard == null) {
+      ScoreboardManager manager = Bukkit.getScoreboardManager();
+      scoreboard = manager.getNewScoreboard();
+
+      objective = scoreboard.registerNewObjective("hns", "dummy", "§c§lHide & Seek");
+      objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+    }
+
+    // Clear old entries
+    for (String entry: scoreboard.getEntries()) {
+      scoreboard.resetScores(entry);
+    }
+
+    // Top: seeker
+    if (seeker != null) {
+      Score seekerScore = objective.getScore("§eSeeker: §c" + seeker.getName());
+      seekerScore.setScore(100); // always at the top
+    }
+
+    // Hiders header
+    objective.getScore("§a ").setScore(99);
+    objective.getScore("§aHiders Alive:").setScore(98);
+    objective.getScore("§a  ").setScore(97);
+
+    // Now list all alive hiders under
+    int score = 50; // lower number → lower position
+    for (Player hider: hiders) {
+      Score sc = objective.getScore("§7• " + hider.getName());
+      sc.setScore(score--);
+    }
+
+    // Apply scoreboard to all participants
+    for (Player p: Bukkit.getOnlinePlayers()) {
+      if (hiders.contains(p) || p.equals(seeker)) p.setScoreboard(scoreboard);
+    }
+  }
+
+  private void giveSpectatorPermission(Player player) {
+    LuckPerms api = LuckPermsProvider.get();
+    User user = api.getUserManager().getUser(player.getUniqueId());
+    if (user == null) return;
+
+    Node node = PermissionNode.builder("nclaim.fly.bypass").value(true).build();
+    user.data().add(node);
+    api.getUserManager().saveUser(user);
+  }
+
+  private void removeSpectatorPermission(Player player) {
+    LuckPerms api = LuckPermsProvider.get();
+    User user = api.getUserManager().getUser(player.getUniqueId());
+    if (user == null) return;
+
+    Node node = PermissionNode.builder("nclaim.fly.bypass").value(true).build();
+    user.data().remove(node);
+    api.getUserManager().saveUser(user);
+  }
+
 }
