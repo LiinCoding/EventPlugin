@@ -30,12 +30,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard. * ;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.ChatColor;
 
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.Random;
+import java.util.function.Function;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
