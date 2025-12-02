@@ -270,11 +270,16 @@ Listener {
         if (oldTeam != null) oldTeam.unregister();
     }
 
-    int scoreValue = 100; // Start at top
+    int scoreValue = 100;
+
+    // Helper method to generate a unique invisible entry
+    Function<Integer, String> invisibleEntry = (i) -> ChatColor.values()[i % ChatColor.values().length].toString();
+
+    int index = 0;
 
     // Seeker
     if (seeker != null) {
-        String entry = "\u200b1"; // invisible entry (must be unique)
+        String entry = invisibleEntry.apply(index++);
         Score score = objective.getScore(entry);
         score.setScore(scoreValue--);
 
@@ -284,16 +289,16 @@ Listener {
     }
 
     // Hiders header
-    String headerEntry = "\u200b2";
+    String headerEntry = invisibleEntry.apply(index++);
     Score headerScore = objective.getScore(headerEntry);
     headerScore.setScore(scoreValue--);
     Team headerTeam = scoreboard.registerNewTeam("headerTeam");
     headerTeam.addEntry(headerEntry);
     headerTeam.setPrefix("§aHiders Alive:");
 
-    // List alive hiders
+    // Hiders
     for (Player hider : hiders) {
-        String entry = "\u200b" + hider.getUniqueId(); // unique invisible entry
+        String entry = invisibleEntry.apply(index++);
         Score score = objective.getScore(entry);
         score.setScore(scoreValue--);
 
@@ -302,7 +307,7 @@ Listener {
         team.setPrefix("§7• " + hider.getName());
     }
 
-    // Apply scoreboard to all participants
+    // Apply scoreboard
     for (Player p : Bukkit.getOnlinePlayers()) {
         if (hiders.contains(p) || p.equals(seeker)) p.setScoreboard(scoreboard);
     }
