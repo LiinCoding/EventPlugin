@@ -256,41 +256,57 @@ Listener {
 
   private void updateScoreboard() {
     if (scoreboard == null) {
-      ScoreboardManager manager = Bukkit.getScoreboardManager();
-      scoreboard = manager.getNewScoreboard();
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        scoreboard = manager.getNewScoreboard();
 
-      objective = scoreboard.registerNewObjective("hns", "dummy", "§c§lHide & Seek");
-      objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        objective = scoreboard.registerNewObjective("hns", "dummy", "§c§lHide & Seek");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
-    // Clear old entries
-    for (String entry: scoreboard.getEntries()) {
-      scoreboard.resetScores(entry);
+    // Clear old entries and teams
+    for (String entry : scoreboard.getEntries()) {
+        scoreboard.resetScores(entry);
+        Team oldTeam = scoreboard.getTeam(entry);
+        if (oldTeam != null) oldTeam.unregister();
     }
 
-    // Top: seeker
+    int scoreValue = 100; // Start at top
+
+    // Seeker
     if (seeker != null) {
-      Score seekerScore = objective.getScore("§eSeeker: §c" + seeker.getName());
-      seekerScore.setScore(100); // always at the top
+        String entry = "\u200b1"; // invisible entry (must be unique)
+        Score score = objective.getScore(entry);
+        score.setScore(scoreValue--);
+
+        Team team = scoreboard.registerNewTeam("seekerTeam");
+        team.addEntry(entry);
+        team.setPrefix("§eSeeker: §c" + seeker.getName());
     }
 
     // Hiders header
-    objective.getScore("§a ").setScore(99);
-    objective.getScore("§aHiders Alive:").setScore(98);
-    objective.getScore("§a  ").setScore(97);
+    String headerEntry = "\u200b2";
+    Score headerScore = objective.getScore(headerEntry);
+    headerScore.setScore(scoreValue--);
+    Team headerTeam = scoreboard.registerNewTeam("headerTeam");
+    headerTeam.addEntry(headerEntry);
+    headerTeam.setPrefix("§aHiders Alive:");
 
-    // Now list all alive hiders under
-    int score = 50; // lower number → lower position
-    for (Player hider: hiders) {
-      Score sc = objective.getScore("§7• " + hider.getName());
-      sc.setScore(score--);
+    // List alive hiders
+    for (Player hider : hiders) {
+        String entry = "\u200b" + hider.getUniqueId(); // unique invisible entry
+        Score score = objective.getScore(entry);
+        score.setScore(scoreValue--);
+
+        Team team = scoreboard.registerNewTeam("hiderTeam" + hider.getUniqueId());
+        team.addEntry(entry);
+        team.setPrefix("§7• " + hider.getName());
     }
 
     // Apply scoreboard to all participants
-    for (Player p: Bukkit.getOnlinePlayers()) {
-      if (hiders.contains(p) || p.equals(seeker)) p.setScoreboard(scoreboard);
+    for (Player p : Bukkit.getOnlinePlayers()) {
+        if (hiders.contains(p) || p.equals(seeker)) p.setScoreboard(scoreboard);
     }
-  }
+}
 
   private void giveSpectatorPermission(Player player) {
     LuckPerms api = LuckPermsProvider.get();
