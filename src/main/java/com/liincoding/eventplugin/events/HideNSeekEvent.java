@@ -119,9 +119,10 @@ Listener {
         p.setSaturation(0); // ensures they can't immediately regen food
 
         // Apply tiny scale via console command
-        Bukkit.dispatchCommand(
-        Bukkit.getConsoleSender(), "attribute " + p.getUniqueId() + " minecraft:scale base set 0.08");
-
+         AttributeInstance scaleAttr = p.getAttribute(Attribute.GENERIC_SCALE);
+        if (scaleAttr != null) {
+            scaleAttr.setBaseValue(0.08); // VERY small
+        }
         hiders.add(p);
       }
     }
@@ -135,15 +136,6 @@ Listener {
 
   @Override
   public void onEnd(EventManager manager) {
-    // Reset hiders' health and scale
-    for (Player hider: hiders) {
-      if (hider.isOnline()) {
-        // Restore scale using command (no setScale method)
-        Bukkit.dispatchCommand(
-        Bukkit.getConsoleSender(), "attribute " + hider.getUniqueId() + " minecraft:scale base set 1.0");
-      }
-    }
-
     hiders.clear();
     seeker = null;
     eventWorld = null;
