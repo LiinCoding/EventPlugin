@@ -29,6 +29,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard. * ;
+import org.bukkit.attribute.AttributeInstance;
 
 import java.util.Map;
 import java.util.ArrayList;
