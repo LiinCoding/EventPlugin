@@ -38,6 +38,7 @@ public class PlayerData {
         player.getInventory().setContents(inventory);
         player.getInventory().setArmorContents(armor);
         player.teleport(location);
+        player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
         player.setHealth(health);
         player.setFoodLevel(food);
         player.setSaturation(saturation);

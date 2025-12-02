@@ -138,8 +138,6 @@ Listener {
     // Reset hiders' health and scale
     for (Player hider: hiders) {
       if (hider.isOnline()) {
-        hider.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0); // restore default
-
         // Restore scale using command (no setScale method)
         Bukkit.dispatchCommand(
         Bukkit.getConsoleSender(), "attribute " + hider.getUniqueId() + " minecraft:scale base set 1.0");
