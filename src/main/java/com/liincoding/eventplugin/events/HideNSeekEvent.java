@@ -119,7 +119,7 @@ Listener {
         p.setSaturation(0); // ensures they can't immediately regen food
 
         // Apply tiny scale via console command
-         AttributeInstance scaleAttr = p.getAttribute(Attribute.GENERIC_SCALE);
+         AttributeInstance scaleAttr = p.getAttribute(Attribute.SCALE);
         if (scaleAttr != null) {
             scaleAttr.setBaseValue(0.08); // VERY small
         }
