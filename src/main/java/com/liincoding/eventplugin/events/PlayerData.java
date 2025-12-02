@@ -11,6 +11,7 @@ public class PlayerData {
     private final ItemStack[] inventory;
     private final ItemStack[] armor;
     private final Location location;
+    private final double maxHealth;
     private final double health;
     private final int food;
     private final float saturation;
@@ -24,6 +25,7 @@ public class PlayerData {
         this.inventory = player.getInventory().getContents();
         this.armor = player.getInventory().getArmorContents();
         this.location = player.getLocation();
+        this.maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
         this.health = player.getHealth();
         this.food = player.getFoodLevel();
         this.xp = player.getTotalExperience();
@@ -38,7 +40,7 @@ public class PlayerData {
         player.getInventory().setContents(inventory);
         player.getInventory().setArmorContents(armor);
         player.teleport(location);
-        player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
+          player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
         player.setHealth(health);
         player.setFoodLevel(food);
         player.setSaturation(saturation);
