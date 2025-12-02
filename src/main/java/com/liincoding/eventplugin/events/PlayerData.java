@@ -21,6 +21,7 @@ public class PlayerData {
     private final PotionEffect[] effects;
     private final GameMode gameMode;
     private final int fireTicks;
+    private final double scale;
 
     public PlayerData(Player player) {
         this.inventory = player.getInventory().getContents();
@@ -35,13 +36,15 @@ public class PlayerData {
         this.effects = player.getActivePotionEffects().toArray(new PotionEffect[0]);
         this.gameMode = player.getGameMode();
         this.fireTicks = player.getFireTicks();
+        this.scale = player.getAttribute(Attribute.SCALE).getBaseValue();
     }
 
     public void restore(Player player) {
         player.getInventory().setContents(inventory);
         player.getInventory().setArmorContents(armor);
         player.teleport(location);
-          player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
+        player.getAttribute(Attribute.SCALE).setBaseValue(scale);
+        player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
         player.setHealth(health);
         player.setFoodLevel(food);
         player.setSaturation(saturation);
